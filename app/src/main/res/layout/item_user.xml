@@ -2,15 +2,17 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/MyCardTheme"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:cardCornerRadius="8dp"
     app:cardElevation="0dp">
-    
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/img_user_picture"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -26,6 +28,7 @@
 
         <TextView
             android:id="@+id/tv_username"
+            style="@style/TextAppearance.MdcTypographyStyles.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -33,7 +36,7 @@
             app:layout_constraintStart_toEndOf="@+id/img_user_picture"
             app:layout_constraintTop_toTopOf="@+id/img_user_picture"
             tools:text="robby2501" />
-        
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

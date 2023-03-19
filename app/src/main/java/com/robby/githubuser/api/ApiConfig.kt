@@ -8,7 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiConfig {
-    private val retrofit: Retrofit
+    private var services: ApiServices
 
     init {
         val loggingInterceptor = if (BuildConfig.DEBUG) {
@@ -31,12 +31,14 @@ object ApiConfig {
             .addInterceptor(authInterceptor)
             .build()
 
-        retrofit = Retrofit.Builder()
+        val retrofit = Retrofit.Builder()
             .baseUrl("https://api.github.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
+
+        services = retrofit.create(ApiServices::class.java)
     }
 
-    fun getApiService(): ApiServices = retrofit.create(ApiServices::class.java)
+    fun getApiService(): ApiServices = services
 }

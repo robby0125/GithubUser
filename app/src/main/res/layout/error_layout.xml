@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/face_sad_cry_solid"
+        android:layout_marginBottom="@dimen/vertical_margin"
+        android:contentDescription="@string/error_image_desc" />
+
+    <TextView
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/something_wrong" />
+
+    <TextView
+        android:id="@+id/tv_error_message"
+        style="@style/TextAppearance.MdcTypographyStyles.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Empty data!" />
+
+</LinearLayout>

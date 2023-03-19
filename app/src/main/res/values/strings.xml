@@ -6,4 +6,7 @@
     <string name="tab_content_desc">Follower and following tab</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="something_wrong">Something wrong!</string>
+    <string name="error_image_desc">Error image</string>
+    <string name="try_again">Try again</string>
 </resources>

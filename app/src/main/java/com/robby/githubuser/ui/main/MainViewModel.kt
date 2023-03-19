@@ -18,6 +18,8 @@ class MainViewModel : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
+    private val defaultMessage = "Failed to load data!"
+
     init {
         getListUser()
     }
@@ -33,20 +35,22 @@ class MainViewModel : ViewModel() {
             ) {
                 _isLoading.value = false
                 if (response.isSuccessful) {
-                    response.body()?.let {
-                        _listUserResponse.value = ApiResponse.success(it.items)
-                    } ?: run {
-                        _listUserResponse.value = ApiResponse.empty("Empty data!", emptyList())
-                    }
+                    val listUser = response.body()?.items
+
+                    if (listUser?.isNotEmpty() == true)
+                        _listUserResponse.value = ApiResponse.success(listUser)
+                    else
+                        _listUserResponse.value = ApiResponse.empty("Nothing to show!", emptyList())
                 } else {
-                    _listUserResponse.value = ApiResponse.error(response.message(), emptyList())
+                    val message = response.message().ifEmpty { defaultMessage }
+                    _listUserResponse.value = ApiResponse.error(message, emptyList())
                 }
             }
 
             override fun onFailure(call: Call<ListUserResponse>, t: Throwable) {
                 _isLoading.value = false
                 _listUserResponse.value =
-                    ApiResponse.error(t.message ?: "Failed to load data!", emptyList())
+                    ApiResponse.error(t.message ?: defaultMessage, emptyList())
             }
         })
     }

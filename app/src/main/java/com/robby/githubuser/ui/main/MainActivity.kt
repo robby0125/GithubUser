@@ -2,21 +2,22 @@ package com.robby.githubuser.ui.main
 
 import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.robby.githubuser.R
 import com.robby.githubuser.api.model.User
 import com.robby.githubuser.databinding.ActivityMainBinding
 import com.robby.githubuser.enums.StatusResponse
 import com.robby.githubuser.ui.adapter.ListUserAdapter
+import com.robby.githubuser.ui.detail.DetailActivity
+import com.robby.githubuser.utils.MarginItemDecoration
 
 class MainActivity : AppCompatActivity(), ListUserAdapter.OnItemClickListener {
     private lateinit var binding: ActivityMainBinding
@@ -24,9 +25,7 @@ class MainActivity : AppCompatActivity(), ListUserAdapter.OnItemClickListener {
     private val mainViewModel by viewModels<MainViewModel>()
     private val listUserAdapter = ListUserAdapter()
 
-    companion object {
-        private const val TAG = "MainActivity"
-    }
+    private var query = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,13 +33,17 @@ class MainActivity : AppCompatActivity(), ListUserAdapter.OnItemClickListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.layoutError.root.visibility = View.INVISIBLE
         binding.rvListUsers.apply {
             val layoutManager = LinearLayoutManager(this@MainActivity)
-            val dividerIterator =
-                DividerItemDecoration(this@MainActivity, layoutManager.orientation)
+            val verticalMargin = resources.getDimensionPixelSize(R.dimen.vertical_margin)
+            val horizontalMargin = resources.getDimensionPixelSize(R.dimen.horizontal_margin)
+            val marginItemDecoration = MarginItemDecoration(verticalMargin, horizontalMargin)
+
+            addItemDecoration(marginItemDecoration)
+            setHasFixedSize(true)
 
             this.layoutManager = layoutManager
-            this.addItemDecoration(dividerIterator)
             this.adapter = listUserAdapter
 
             listUserAdapter.setOnItemClickListener(this@MainActivity)
@@ -48,12 +51,16 @@ class MainActivity : AppCompatActivity(), ListUserAdapter.OnItemClickListener {
 
         with(mainViewModel) {
             listUserResponse.observe(this@MainActivity) {
-                Log.d(TAG, "Status Response : ${it.status} with message : ${it.message}")
                 when (it.status) {
-                    StatusResponse.SUCCESS -> listUserAdapter.setData(it.body)
+                    StatusResponse.SUCCESS -> {
+                        binding.rvListUsers.visibility = View.VISIBLE
+                        binding.layoutError.root.visibility = View.INVISIBLE
+                    }
                     StatusResponse.EMPTY -> showFailed(it.message!!)
                     StatusResponse.ERROR -> showFailed(it.message!!)
                 }
+
+                listUserAdapter.setData(it.body)
             }
 
             isLoading.observe(this@MainActivity) { showLoading(it) }
@@ -70,7 +77,10 @@ class MainActivity : AppCompatActivity(), ListUserAdapter.OnItemClickListener {
             queryHint = getString(R.string.search_hint)
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
-                    query?.let { mainViewModel.getListUser(it) }
+                    query?.let {
+                        this@MainActivity.query = it
+                        mainViewModel.getListUser(this@MainActivity.query)
+                    }
                     searchView.clearFocus()
                     return true
                 }
@@ -85,17 +95,25 @@ class MainActivity : AppCompatActivity(), ListUserAdapter.OnItemClickListener {
     }
 
     private fun showFailed(message: String) {
-        // TODO : show failed layout message
+        binding.rvListUsers.visibility = View.INVISIBLE
+
+        with(binding.layoutError) {
+            root.visibility = View.VISIBLE
+            tvErrorMessage.text = message
+        }
     }
 
     private fun showLoading(isLoading: Boolean) {
+        if (isLoading && binding.layoutError.root.isVisible) {
+            binding.layoutError.root.visibility = View.INVISIBLE
+        }
+
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
     }
 
     override fun onUserItemClick(user: User) {
-        Toast.makeText(this, "Clicked : ${user.login}", Toast.LENGTH_SHORT).show()
-//        val intent = Intent(this@MainActivity, DetailActivity::class.java)
-//        intent.putExtra(DetailActivity.EXTRA_USERNAME, user.login)
-//        startActivity(intent)
+        val intent = Intent(this@MainActivity, DetailActivity::class.java)
+        intent.putExtra(DetailActivity.EXTRA_USERNAME, user.login)
+        startActivity(intent)
     }
 }
